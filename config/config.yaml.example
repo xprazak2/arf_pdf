@@ -3,3 +3,5 @@
 :output_dir: /var/lib/openscap/pdf
 
 :wkhtmltopdf: /usr/local/bin/wkhtmltopdf
+
+:verbose: false

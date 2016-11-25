@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'openscap', '~> 0.4.4'
-  spec.add_dependency 'pdfkit'
+  spec.add_dependency 'pdfkit', '~> 0.8.2'
 
   spec.add_development_dependency 'bundler', '~> 1.8'
   spec.add_development_dependency 'rake', '10.5'

@@ -1,6 +1,6 @@
 module ArfPdf
   class Converter
-    CONFIG = '../config/config.yaml'
+    CONFIG = '/etc/arf_pdf/config.yaml'
     attr_reader :config
 
     def initialize
@@ -17,13 +17,13 @@ module ArfPdf
       report_paths = Dir.glob(File.join(config[:reports_dir], 'arf', '**', '**', '*')).select { |r| File.file?(r) }
       nonzero_paths = skip_empty_paths report_paths
       reports_html = reports_to_html nonzero_paths
-      reports_to_pdf reports_html
+      reports_to_pdf reports_html.compact
     end
 
     def skip_empty_paths(report_paths)
       report_paths.map do |path|
         if File.zero?(path)
-          puts "Skipping file with zero size: #{path}"
+          puts "Skipping file with zero size: #{path}" if config[:verbose]
           next
         end
         path
@@ -48,21 +48,20 @@ module ArfPdf
     def reports_to_html(report_paths)
       report_paths.map do |path|
         out = output_path(path)
-        next if already_generated?(out)
+        if File.exist?(out)
+          puts "Skipping file #{out}, already generated" if config[:verbose]
+          next
+        end
         { :path_to_save => out, :html => arf_html(path) }
       end
     end
 
-    def already_generated?(output_path)
-      
-    end
-
     def reports_to_pdf(reports_html)
-      r = reports_html.first
-      create_dirs r
-      kit = PDFKit.new(r[:html])
-      binding.pry
-      kit.to_file(r[:path_to_save])
+      reports_html.each do |report|
+        create_dirs report
+        kit = PDFKit.new(report[:html])
+        kit.to_file(report[:path_to_save])
+      end
     end
 
     def output_path(path)
@@ -76,7 +75,7 @@ module ArfPdf
     def configure_pdfkit
       PDFKit.configure do |c|
         c.wkhtmltopdf = config[:wkhtmltopdf]
-        c.verbose = true
+        c.verbose = config[:verbose]
       end
     end
   end
