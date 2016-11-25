@@ -6,6 +6,7 @@ module ArfPdf
     def initialize
       @config = YAML.load_file(CONFIG)
       OpenSCAP.oscap_init
+      configure_pdfkit
     rescue => e
       puts 'Config file could not be loaded'
       puts e.message
@@ -46,45 +47,37 @@ module ArfPdf
 
     def reports_to_html(report_paths)
       report_paths.map do |path|
-        { :path_to_save => output_path(path), :html => arf_html(path) }
+        out = output_path(path)
+        next if already_generated?(out)
+        { :path_to_save => out, :html => arf_html(path) }
       end
     end
 
+    def already_generated?(output_path)
+      
+    end
+
     def reports_to_pdf(reports_html)
-      tmp = File.join(config[:reports_dir], 'tmp')
-      FileUtils.mkdir_p(tmp)
       r = reports_html.first
-      # file = Tempfile.open(r[:path_to_save].split('/').last) do |f|
-      #   f.write r[:html]
-      # end
-      file_path = touch_tempfile r, tmp
-      # binding.pry
       create_dirs r
-      binding.pry
-      kit = PDFKit.new(File.new(file_path))
+      kit = PDFKit.new(r[:html])
       binding.pry
       kit.to_file(r[:path_to_save])
-      # binding.pry
-      # FileUtils.rm_rf(tmp)
-      # reports_html.each do |report|
-      #   kit = PDFKit.new(report[:html])
-      #   kit.to_file(report[:path_to_save])
-      # end
     end
 
     def output_path(path)
       res = config[:output_dir] + path.split('arf')[1]
     end
 
-    # pdfkit needs file or url
-    def touch_tempfile(report, tmp_dir)
-      file_path = File.join(tmp_dir, report[:path_to_save].split('/').last)
-      File.open(file_path, 'w').write report[:html]
-      file_path
-    end
-
     def create_dirs(report)
       FileUtils.mkdir_p report[:path_to_save].split('/')[0..-2].join('/')
+    end
+
+    def configure_pdfkit
+      PDFKit.configure do |c|
+        c.wkhtmltopdf = config[:wkhtmltopdf]
+        c.verbose = true
+      end
     end
   end
 end
