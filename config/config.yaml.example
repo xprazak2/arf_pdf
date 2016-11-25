@@ -1,0 +1,3 @@
+:reports_dir: /usr/share/foreman-proxy/openscap/reports
+
+:output_dir: /var/lib/openscap/pdf
