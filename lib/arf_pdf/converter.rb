@@ -69,7 +69,7 @@ module ArfPdf
     end
 
     def create_dirs(report)
-      FileUtils.mkdir_p report[:path_to_save].split('/')[0..-2].join('/')
+      ::FileUtils.mkdir_p report[:path_to_save].split('/')[0..-2].join('/')
     end
 
     def configure_pdfkit

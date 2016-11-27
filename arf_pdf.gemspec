@@ -13,13 +13,13 @@ Gem::Specification.new do |spec|
   spec.homepage      = ""
   spec.license       = "GPL-3.0"
 
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables   << 'arf_pdf'
   # spec.test_files = Dir["test/**/*"]
-  spec.require_paths = ["lib"]
+  spec.files = `git ls-files`.split("\n") - ['.gitignore']
 
   spec.add_dependency 'openscap', '~> 0.4.4'
   spec.add_dependency 'pdfkit', '~> 0.8.2'
 
-  spec.add_development_dependency 'bundler', '~> 1.8'
-  spec.add_development_dependency 'rake', '10.5'
+  spec.add_development_dependency 'bundler'
+  #spec.add_development_dependency 'rake', '10.5'
 end
